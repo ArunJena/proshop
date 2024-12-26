@@ -11,7 +11,7 @@ const authUser = asyncHandler(async (req, res) => {
 
   if (user && (await user.matchPassword(password))) {
     const tocken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "300d",
+      expiresIn: "30d",
     });
 
     res.cookie("jwt", tocken, {

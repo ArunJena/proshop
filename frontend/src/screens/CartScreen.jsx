@@ -61,7 +61,7 @@ const CartScreen = () => {
                     <Button
                       type="button"
                       variant="light"
-                      onClick={() => dispatch(removeFromCart(item.product))}
+                      onClick={() => dispatch(removeFromCart(item._id))}
                     >
                       <FaTrash />
                     </Button>

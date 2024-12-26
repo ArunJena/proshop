@@ -28,8 +28,20 @@ const LoginScreen = () => {
     }
   }, [navigate, redirect, userInfo]);
 
-  const submitHandler = (e) => {
+  useEffect(() => {
+    const cookies = document.cookie;
+    console.log(cookies);
+  }, []);
+
+  const submitHandler = async (e) => {
     e.preventDefault();
+    try {
+      const res = await login({ email, password }).unwrap();
+      dispatch(setCredentials({ ...res }));
+      navigate(redirect);
+    } catch (error) {
+      toast.error(error?.data?.message || error.error);
+    }
   };
 
   return (
@@ -56,14 +68,23 @@ const LoginScreen = () => {
           ></Form.Control>
         </Form.Group>
 
-        <Button type="submit" variant="primary" className="mt-3">
+        <Button
+          type="submit"
+          variant="primary"
+          className="mt-3"
+          disabled={isLoading}
+        >
           Sign In
         </Button>
+        {isLoading && <Loader />}
       </Form>
 
       <Row className="py-3">
         <Col>
-          New Customer? <Link to="/register">Register</Link>
+          New Customer?{" "}
+          <Link to={redirect ? `/register?redirect=${redirect}` : "/register"}>
+            Register
+          </Link>
         </Col>
       </Row>
     </FormContainer>

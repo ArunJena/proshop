@@ -15,8 +15,9 @@ const ProductCarousel = () => {
         <Carousel pause="hover" className="bg-primary">
           {data?.map((product) => (
             <Carousel.Item key={product._id}>
+              ``
               <img
-                className="d-block w-100"
+                className="d-block w-80"
                 src={product.image}
                 alt={product.name}
               />

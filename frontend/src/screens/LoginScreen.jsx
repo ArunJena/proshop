@@ -30,7 +30,7 @@ const LoginScreen = () => {
 
   useEffect(() => {
     const cookies = document.cookie;
-    console.log(cookies);
+    // console.log(cookies);
   }, []);
 
   const submitHandler = async (e) => {

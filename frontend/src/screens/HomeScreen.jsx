@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { Product } from "../components/Product";
@@ -15,6 +16,11 @@ const HomeScreen = () => {
   });
   return (
     <>
+      {keyword ? (
+        <Link to="/" className="btn btn-light">
+          Go Back
+        </Link>
+      ) : null}
       {isLoading ? (
         <Loader />
       ) : error ? (

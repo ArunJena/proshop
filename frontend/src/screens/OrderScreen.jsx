@@ -33,18 +33,18 @@ const OrderScreen = () => {
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
   const { userInfo } = useSelector((state) => state.auth);
   const {
-    data: paypal,
+    data: paypalClientId,
     isLoading: loadingPayPal,
     error: errorPayPal,
   } = useGetPayPalClientIdQuery();
 
   useEffect(() => {
-    if (!errorPayPal && !loadingPayPal && paypal.clientId) {
+    if (!errorPayPal && !loadingPayPal && paypalClientId) {
       const loadPayPalScript = async () => {
         paypalDispatch({
           type: "resetOptions",
           value: {
-            "client-id": paypal.clientId,
+            "client-id": paypalClientId,
             currency: "USD",
           },
         });
@@ -54,7 +54,47 @@ const OrderScreen = () => {
         if (!window.paypal) loadPayPalScript();
       }
     }
-  }, [order, paypal, errorPayPal, loadingPayPal, paypalDispatch]);
+  }, [order, paypalClientId, errorPayPal, loadingPayPal, paypalDispatch]);
+
+  const createOrder = (data, actions) => {
+    return actions.order
+      .create({
+        purchase_units: [
+          {
+            amount: {
+              value: order.totalPrice,
+            },
+          },
+        ],
+      })
+      .then((orderID) => orderID);
+  };
+
+  const onApprove = async (data, actions) => {
+    return actions.order.capture().then(async function (details) {
+      try {
+        await payOrder({ orderId, details });
+        refetch();
+        toast.success("Payment successful");
+      } catch (error) {
+        toast.error(error?.data?.message || error.error);
+      }
+    });
+  };
+
+  const onApproveTest = async () => {
+    try {
+      await payOrder({ id: orderId, details: { payer: {} } });
+      refetch();
+      toast.success("Order paid");
+    } catch (error) {
+      toast.error(error?.data?.message || error.error);
+    }
+  };
+
+  const onError = (error) => {
+    toast.error("Payment failed");
+  };
 
   return isLoading ? (
     <Loader />
@@ -164,6 +204,30 @@ const OrderScreen = () => {
                   <Col>${order.totalPrice}</Col>
                 </Row>
               </ListGroup.Item>
+              {!order.isPaid && (
+                <ListGroup.Item>
+                  {loadingPay && <Loader />}
+                  {isPending ? (
+                    <Loader />
+                  ) : (
+                    <div>
+                      <Button
+                        onClick={onApproveTest}
+                        style={{ marginBottom: "10px" }}
+                      >
+                        Test Pay Order
+                      </Button>
+                      <div>
+                        <PayPalButtons
+                          createOrder={createOrder}
+                          onApprove={onApprove}
+                          onError={onError}
+                        ></PayPalButtons>
+                      </div>
+                    </div>
+                  )}
+                </ListGroup.Item>
+              )}
             </ListGroup>
           </Card>
         </Col>
